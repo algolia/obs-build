@@ -1027,6 +1027,27 @@ vm_setup_network() {
 	ifconfig lo 127.0.0.1 up
 	ifconfig lo add ::1/128
     fi
+    # Dirty way to detect if there is a nic
+    VM_NET_DEVICE=$( cd /sys/class/net/; echo * )
+    VM_NET_DEVICE=${VM_NET_DEVICE#lo }
+    if [ "x${VM_NET_DEVICE}" != "xlo" ]; then
+	VM_NET_DEVICE=${VM_NET_DEVICE%% *}
+        echo "Configuring network interface ${VM_NET_DEVICE} ..."
+	if test -z "$VM_NET_DEVICE" ; then
+	    cleanup_and_exit 1 "ERROR: no network device found"
+	fi
+	if test -x /sbin/ip ; then
+            echo "Setting IPv6 local link on ${VM_NET_DEVICE} ..."
+	    ip addr add ::1/24 dev ${VM_NET_DEVICE}
+            echo "Starting ${VM_NET_DEVICE} ..."
+	    ip link set ${VM_NET_DEVICE} up
+            if test -x /sbin/dhclient ; then
+                echo "Running  dhclient on ${VM_NET_DEVICE} ..."
+                # Needs module af_packet to be added to initrd !
+                dhclient -v -nw -I ${VM_NET_DEVICE}
+            fi
+	fi
+    fi
     if test -n "$VM_TELNET"; then 
 	VM_TELNET_DEVICE=$( cd /sys/class/net/; echo * )
 	VM_TELNET_DEVICE=${VM_TELNET_DEVICE#lo }
