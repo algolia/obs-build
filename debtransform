@@ -346,11 +346,12 @@ die("dsc file contains no Version: line\n") unless defined($version);
 # debtransform generates source package in 1.0 (non-native) format
 print "Transforming into source package 1.0 (non-native) format\n";
 
+#### DISABLED cause it breaks some packages
 # non-native sources should always contain Debian revision
-if ($version !~ /-/) {
-	$version = $version . "-1";
-	print "Added Debian revision to Version field, which is now \"$version\".\n";
-}
+#if ($version !~ /-/) {
+#	$version = $version . "-1";
+#	print "Added Debian revision to Version field, which is now \"$version\".\n";
+#}
 
 # for 1.0 all source archives should be transformed into weak gzip files
 # (https://wiki.debian.org/Projects/DebSrc3.0)
