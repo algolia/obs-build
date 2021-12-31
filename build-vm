@@ -1125,7 +1125,9 @@ vm_setup_network() {
                 if test -x /sbin/dhclient ; then
                     echo "Running  dhclient on ${VM_NET_DEVICE} ..."
                     # Needs module af_packet to be added to initrd !
-                    dhclient -v -nw -I ${VM_NET_DEVICE}
+                    dhclient -v -I ${VM_NET_DEVICE}
+                    echo "Configured IP addresses"
+                    ip a
                 fi
             fi
         fi
