@@ -304,7 +304,15 @@ my @dir = grep {$_ ne '.' && $_ ne '..'} readdir(D);
 closedir(D);
 my %dir = map {$_ => 1} @dir;
 
+my $version = $tags->{'VERSION'};
+die("dsc file contains no Version: line\n") unless defined($version);
+# no epoch in version, please
+if ($version =~ s/^\d+://) {
+	print "Stripped epoch from Version field, which is now \"$version\".\n";
+}
+
 my $tarfile = $tags->{'DEBTRANSFORM-TAR'};
+$tarfile =~ s/\$\{Version\}/$version/;
 my @debtarfiles;
 if ($tags->{'DEBTRANSFORM-FILES-TAR'}) {
   @debtarfiles = split(' ', $tags->{'DEBTRANSFORM-FILES-TAR'});
@@ -339,13 +347,6 @@ if (!$tarfile || !@debtarfiles) {
 
 my $name = $tags->{'SOURCE'};
 die("dsc file contains no Source: line\n") unless defined($name);
-my $version = $tags->{'VERSION'};
-die("dsc file contains no Version: line\n") unless defined($version);
-# no epoch in version, please
-if ($version =~ s/^\d+://) {
-	print "Stripped epoch from Version field, which is now \"$version\".\n";
-}
-
 
 # debtransform generates source package in 1.0 (non-native) format
 print "Transforming into source package 1.0 (non-native) format\n";
