@@ -1237,6 +1237,11 @@ vm_setup_network() {
     if test -n "$VM_NETWORK"; then
        echo "Network setup"
        NETDEV=eth0
+       VM_NET_DEVICE=$( cd /sys/class/net/; echo * )
+       VM_NET_DEVICE=${VM_NET_DEVICE#lo }
+       if [ "x${VM_NET_DEVICE}" != "xlo" ]; then
+           NETDEV=${VM_NET_DEVICE%% *}
+       fi
        # these IPs are the built-in adresses in qemu
        echo nameserver 10.0.2.3 >> /etc/resolv.conf
        if test -x /sbin/ip ; then
@@ -1249,7 +1254,7 @@ vm_setup_network() {
            ifconfig ${NETDEV} add ::1/24
            route add default gw 10.0.2.2
        else
-           dhclient eth0
+           dhclient -v -I ${NETDEV}
        fi
        ip a
     fi
